@@ -154,4 +154,5 @@ renderLista()
 // ---------------------------------------
 //start();
 //Esto es para que primero cargue todo lo del DOM y despues llamo las funciones, sin importar si esta en el footer o en el header
-window.onload = start;
+//window.onload = start;
+window.addEventListener('DOMContentLoaded', start)
