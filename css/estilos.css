@@ -32,3 +32,10 @@
 .page-content{
     padding: 10px;
 }
+
+img{
+    width: 100%;
+    max-width: 800px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
