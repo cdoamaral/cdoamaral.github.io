@@ -1,0 +1,39 @@
+<ul class="demo-list-icon mdl-list w-100" id="contenedor-lista">
+
+   {{#listaProductos}} <!-- Esto reemplazo el foreach. Es sintaxis de Handlebar -->
+        <li class="mdl-list__item">
+            <span class="mdl-list__item-primary-content w-10">
+                <i class="material-icons">shopping_cart</i>
+            </span>
+
+            <span class="mdl-list__item-primary-content w-30">
+                {{nombre}} <!-- Es una clave que esta en el array de Productos -->
+        </span>
+
+            <span class="mdl-list__item-primary-content w-20">
+                <div class="mdl-textfield mdl-js-textfield">
+                    <input onchange="cambiarCantidad({{id}}, this)"
+                    class="mdl-textfield__input" type="text" id="sample-cantidad-{{@index}}">
+                        <label class="mdl-textfield__label" for="sample-cantidad-{{@index}}">{{cantidad}}</label>
+            </div>
+        </span>
+
+                <span class="mdl-list__item-primary-content w-20 ml-item">
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input onchange="cambiarPrecio({{id}}, this)"
+                        class="mdl-textfield__input" type="text" id="sample-precio-{{@index}}">
+                            <label class="mdl-textfield__label" for="sample-precio-{{@index}}">{{precio}}</label>
+            </div>
+        </span>
+
+                    <span class="mdl-list__item-primary-content w-20 ml-item">
+                        <!-- Colored FAB button with ripple -->
+            <button onclick="borrarProd({{id}})"
+                            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+                            <i class="material-icons">remove_shopping_cart</i>
+                        </button>
+                    </span>
+    </li>
+   {{/listaProductos}}
+    
+</ul>
