@@ -39,3 +39,12 @@ img{
     border-radius: 20px;
     margin-bottom: 20px;
 }
+
+progress{
+    width: 100%;
+    display: none;
+}
+
+.mdl-textfield__label{
+    color: rgba(0, 0, 0, 0.6)
+}

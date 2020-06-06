@@ -176,7 +176,8 @@ function configurarListeners(){
             postProdWeb(prod, prod=>{
                 console.log('post', prod);
                 renderLista()
-                document.getElementById('ingreso-producto').value  = '';
+                //document.getElementById('ingreso-producto').value  = '';
+                input.val('')
             })
 
 
@@ -203,10 +204,22 @@ function configurarListeners(){
 
 /* PONER SPINNER */
 async function deleteAllProdWeb(cb){
+
+    let porcentaje = 0;
+    let progress = document.querySelector('progress');
+    let btnBorrarProductos = document.querySelector('#btn-borrar-productos')
+
+    progress.value = 0;
+    progress.style.display = 'block';
+    btnBorrarProductos.setAttribute('disabled', true)
+
     for(let i=0; i<listaProductos.length; i++){
 
-        let porcentaje = parseInt( (i*100) / listaProductos.length )
+        porcentaje = parseInt( (i*100) / listaProductos.length )
         console.log(porcentaje + '%')
+
+        progress.value = porcentaje;
+
 
         try{
         let url = getURL() + listaProductos[i].id
@@ -221,6 +234,14 @@ async function deleteAllProdWeb(cb){
         cb(err)
         }
     }
+ 
+    porcentaje = 100
+    progress.value = porcentaje;
+
+    setTimeout( () => {
+        progress.style.display = 'none';
+        btnBorrarProductos.removeAttribute('disabled')
+    }, 2000)
     cb('ok')
 }
 
@@ -297,21 +318,41 @@ function renderLista() {
   
 
 function registrarServiceWorker() {
-    if('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            this.navigator.serviceWorker.register('./sw.js').then(function(reg) {
-                console.log('El service worker se registró correctamente', reg)
+    if(window.caches){
+        if('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+
+                this.navigator.serviceWorker.register('./sw.js').then( reg => {
+                    console.log('El service worker se registró correctamente', reg)
+
+                    reg.onupdatefound = () =>{
+                        const installingWorker = reg.installing // esto es un objeto
+                        installingWorker.onstatechange = () =>{
+                            if( installingWorker.state === 'activated' && this.navigator.serviceWorker.controller ){
+                                
+                                this.console.log('Reiniciando el Service Worker')
+                                this.setTimeout( () =>{
+                                    this.location.reload()
+                                }, 1000)
+                            }
+                        }
+                    }
+                })
+                .catch(function(err) {
+                    console.warn('Error al registrar el service worker', err)
+                })
             })
-            .catch(function(err) {
-                console.warn('Error al registrar el service worker', err)
-            })
-        })
+        } 
+    } else {
+        console.log('Cache no soportado')
     }
+
 }
 function start(){
 registrarServiceWorker()
 configurarListeners()
 renderLista()
+//pruebaCaches()
 }
 
 
@@ -321,4 +362,62 @@ renderLista()
 //start();
 //Esto es para que primero cargue todo lo del DOM y despues llamo las funciones, sin importar si esta en el footer o en el header
 //window.onload = start;
-window.addEventListener('DOMContentLoaded', start)
+//window.addEventListener('DOMContentLoaded', start)
+$(document).ready(start)
+
+
+// ------------------------------------------------------
+//          PRUEBA DE CACHE STORAGE(caches)
+// ------------------------------------------------------
+function pruebaCaches(){
+    if( window.caches ){
+        console.log('El browser soporta Caches');
+
+        caches.open('prueba-1')
+        caches.open('prueba-2')
+        caches.open('prueba-3')
+
+        //caches.has('prueba-2').then(rta => console.log(rta)) // esta es la version completa de la linea de abajo
+        caches.has('prueba-2').then(console.log)
+        caches.delete('prueba-1').then(console.log)
+        caches.keys().then(console.log)
+    //Aca va como promesa porque le quiero agregar un recurso
+    // cache sin la S final es una referencia a caches - que es un objeto del DOM
+        caches.open('caches-v1.1').then( cache =>{
+            //cache.add('/index.html')
+            cache.addAll([
+                '/index.html',
+                '/css/estilos.css',
+                '/images/super.jpg'
+            ]).then( ()=>{
+                console.log('recursos agregados')
+
+                cache.delete('/css/estilos.css').then(console.log)
+                cache.match('/index.html').then(res => {
+                    if(res){
+                        console.log('recurso encontrado')
+                        //res.text().then(console.log)
+                    }
+                    else {
+                        console.log('recurso inexistente')
+                    }
+                })
+                cache.put('/index.html', new Response('Hola mundo'))
+
+                cache.keys().then(console.log)
+                cache.keys().then(recursos => {
+                    recursos.forEach(recurso => {
+                        console.log(recurso.url)
+                    })
+                })
+
+                caches.keys().then( nombres =>{
+                    console.log('Nombre de Caches: ', nombres)
+                })
+            })
+
+        })
+    } else {
+        console.log('Caches no soportado')
+    }
+}
